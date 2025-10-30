@@ -5,6 +5,9 @@ build/
 dist/
 wheels/
 *.egg-info
+add_missing_readings/input_files/
+add_missing_readings/output_files/
+add_missing_readings/run_script.bat
 
 # Virtual environments
 .venv
