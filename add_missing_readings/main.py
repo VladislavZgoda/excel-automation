@@ -47,9 +47,12 @@ MeterData = TypedDict(
     },
 )
 
+RowNumber = TypedDict("RowNumber", {"row_number": str})
+
 MeterReadings: TypeAlias = list[MeterData]
 
-meters_without_readings: dict[str, dict[str, str]] = {}
+# key - серийный номер ПУ.
+meters_without_readings: dict[str, RowNumber] = {}
 meters_readings: MeterReadings = []
 
 for row in range(3, ws_write_data.max_row + 1):
@@ -69,7 +72,7 @@ for row in range(7, ws_read_data.max_row + 1):
 
     readings = ws_read_data["K" + str_row_number].value
 
-    if readings is None or readings == "н/д":
+    if readings == "н/д" or readings is None:
         continue
 
     meter_data: MeterData = {
