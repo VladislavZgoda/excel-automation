@@ -2,15 +2,16 @@ from sys import exit
 from pathlib import Path
 from time import strftime, localtime
 from typing import TypedDict, TypeAlias
+
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
 script_dir = Path(__file__).resolve().parent
 
-# read_data.xlsx - Отчет "Новые показания" из Пирамида 2
-read_data_path = f"{script_dir}\\input_files\\read_data.xlsx"
-# write_data.xlsx - Приложение №9
-write_data_path = f"{script_dir}\\input_files\\write_data.xlsx"
+# read_data.xlsx - Отчет "Новые показания" из Пирамида 2.
+read_data_path = script_dir / "input_files" / "read_data.xlsx"
+# write_data.xlsx - Приложение №9.
+write_data_path = script_dir / "input_files" / "write_data.xlsx"
 
 try:
     wb_read_data = load_workbook(read_data_path)
@@ -42,7 +43,7 @@ MeterData = TypedDict(
     "MeterData",
     {
         "serial_number": str,
-        "readings": str,
+        "readings": int | float,
         "row_number": str,
     },
 )
@@ -51,15 +52,15 @@ RowNumber = TypedDict("RowNumber", {"row_number": str})
 
 MeterReadings: TypeAlias = list[MeterData]
 
-# key - серийный номер ПУ.
+# key - Серийный номер ПУ.
 meters_without_readings: dict[str, RowNumber] = {}
 meters_readings: MeterReadings = []
 
 for row in range(3, ws_write_data.max_row + 1):
     str_row_number = str(row)
-    reading = ws_write_data["H" + str_row_number].value
+    readings = ws_write_data["H" + str_row_number].value
 
-    if reading is None:
+    if readings is None:
         serial_number = ws_write_data["C" + str_row_number].value
         meters_without_readings[serial_number] = {"row_number": str_row_number}
 
@@ -72,7 +73,7 @@ for row in range(7, ws_read_data.max_row + 1):
 
     readings = ws_read_data["K" + str_row_number].value
 
-    if readings == "н/д" or readings is None:
+    if not isinstance(readings, (int, float)):
         continue
 
     meter_data: MeterData = {
@@ -92,9 +93,9 @@ for meter_data in meters_readings:
         print(f"{serial_number} not fond in the 'write_data.xlsx'.")
         exit(1)
 
-    ws_write_data["H" + row_number].value = round(float(readings), 2)
+    ws_write_data["H" + row_number].value = round(readings, 2)
     ws_write_data["D" + row_number].value = meter_reading_date
     ws_write_data["K" + row_number].value = current_date
     ws_write_data["H" + row_number].fill = yellow_fill
 
-wb_write_data.save(f"{script_dir}\\output_files\\Приложение №9 ЮР.xlsx")
+wb_write_data.save(script_dir / "output_files" / "Приложение №9 ЮР.xlsx")
