@@ -4,7 +4,7 @@ from time import strftime, localtime
 from typing import TypedDict, TypeAlias
 
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill
+from openpyxl.styles import Alignment, PatternFill
 
 script_dir = Path(__file__).resolve().parent
 
@@ -36,6 +36,9 @@ except KeyError:
 current_date = strftime("%d.%m.%Y", localtime())
 meter_reading_date = ws_read_data["K6"].value
 
+alignment_date = Alignment(horizontal="center", vertical="center")
+alignment_value = Alignment(horizontal="right", vertical="center")
+
 yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00",
                           fill_type="solid")
 
@@ -61,7 +64,7 @@ for row in range(3, ws_write_data.max_row + 1):
     readings = ws_write_data["H" + str_row_number].value
 
     if readings is None:
-        serial_number = ws_write_data["C" + str_row_number].value
+        serial_number = str(ws_write_data["C" + str_row_number].value)
         meters_without_readings[serial_number] = {"row_number": str_row_number}
 
 for row in range(7, ws_read_data.max_row + 1):
@@ -94,8 +97,11 @@ for meter_data in meters_readings:
         exit(1)
 
     ws_write_data["H" + row_number].value = round(readings, 2)
-    ws_write_data["D" + row_number].value = meter_reading_date
-    ws_write_data["K" + row_number].value = current_date
+    ws_write_data["H" + row_number].alignment = alignment_value
     ws_write_data["H" + row_number].fill = yellow_fill
+    ws_write_data["D" + row_number].value = meter_reading_date
+    ws_write_data["D" + row_number].alignment = alignment_date
+    ws_write_data["K" + row_number].value = current_date
+    ws_write_data["K" + row_number].alignment = alignment_date
 
 wb_write_data.save(script_dir / "output_files" / "Приложение №9 ЮР.xlsx")
