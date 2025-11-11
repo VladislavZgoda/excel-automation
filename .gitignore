@@ -7,7 +7,7 @@ wheels/
 *.egg-info
 */input_files/
 */output_files/
-*/assets/
+*/templates/
 */run_script.bat
 
 # Virtual environments

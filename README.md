@@ -11,11 +11,11 @@ add_missing_readings:
   """
 
 process_legal_entities:
-1. Создать папки input_files, output_files и assets.
+1. Создать папки input_files, output_files и templates.
 2. В папку input_files сохранить xlsx файлы meter_readings и current_meter_readings:
    - meter_readings.xlsx - Отчет "Новые показания" из Пирамида 2
    - current_meter_reading.xlsx - Выгрузка показаний из Пирамида 2 с А+ текущие
-3. В папку assets сохранить ведомости без показаний.
+3. В папку templates сохранить ведомости без показаний.
 Создать bat файл для запуска скрипта в cmd.
   К примеру:
   """

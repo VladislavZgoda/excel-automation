@@ -87,9 +87,9 @@ for row in range(3, ws_current_meter_readings.max_row + 1):
         "date": current_date,
     }
 
-assets_dir = Path(script_dir / "assets")
+templates_dir = Path(script_dir / "templates")
 
-for file in assets_dir.iterdir():
+for file in templates_dir.iterdir():
     wb = load_workbook(file)
     ws = wb.active
 
