@@ -23,15 +23,13 @@ except KeyError:
     exit(1)
 
 # current_meter_reading.xlsx - Выгрузка показаний из Пирамида 2 с А+ текущие.
-current_meter_readings_path = (script_dir /
-                               "input_files" / "current_meter_readings.xlsx")
+current_meter_readings_path = script_dir / "input_files" / "current_meter_readings.xlsx"
 
 try:
     wb_current_meter_readings = load_workbook(current_meter_readings_path)
     ws_current_meter_readings = wb_current_meter_readings["Sheet"]
 except FileNotFoundError:
-    print("FileNotFoundError: "
-          "The file 'current_meter_readings.xlsx' not found.")
+    print("FileNotFoundError: The file 'current_meter_readings.xlsx' not found.")
     exit(1)
 except KeyError:
     print("KeyError: The sheet 'Sheet' was not found.")

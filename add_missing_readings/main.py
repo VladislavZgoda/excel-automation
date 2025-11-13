@@ -39,8 +39,7 @@ meter_reading_date = ws_read_data["K6"].value
 alignment_date = Alignment(horizontal="center", vertical="center")
 alignment_value = Alignment(horizontal="right", vertical="center")
 
-yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00",
-                          fill_type="solid")
+yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
 MeterData = TypedDict(
     "MeterData",
