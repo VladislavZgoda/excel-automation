@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TypedDict
 from time import strftime, localtime
 
+import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
 
@@ -35,11 +36,34 @@ except KeyError:
     print("KeyError: The sheet 'Sheet' was not found.")
     exit(1)
 
-current_date = strftime("%d.%m.%Y", localtime())
-meter_readings_date = ws_meter_readings["K6"].value
+# Из matritca_readings.xlsx интересуют только ВИП потребители.
+matritca_readings_path = script_dir / "input_files" / "matritca_readings.xlsx"
 
-alignment_date = Alignment(horizontal="center", vertical="center")
-alignment_value = Alignment(horizontal="right", vertical="center")
+try:
+    # Пропустить первую строку, чтобы не использовать ее в качестве headers.
+    df = pd.read_excel(matritca_readings_path, skiprows=[0])
+except FileNotFoundError:
+    print("FileNotFoundError: The file 'matritca_readings.xlsx' not found.")
+    exit(1)
+
+# Удалить последнюю строку.
+df = df.iloc[:-1]
+
+df["Код потребителя"] = df["Код потребителя"].str.extract(r"(\d{12})")
+df = df[df["Код потребителя"].notna()]
+df = df[~df["Код потребителя"].str[:6].isin(["230700", "230710"])]
+
+# Убрать повторяющиеся строки с ПУ у которых выгрузились Т1-Т2 и Т общ отдельно.
+df = df[df["Активная энергия, импорт"].notna()]
+
+df["Дата"] = df["Дата"].dt.strftime("%d.%m.%Y")
+
+df = df.drop_duplicates(subset=["Серийный №"], keep="last")
+df["Серийный №"] = df["Серийный №"].astype("int").astype("str")
+
+# Добавить 0 к началу серийного номера, если он из 7 цифр.
+df["Серийный №"] = df["Серийный №"].str.zfill(8)
+df = df.set_index("Серийный №")[["Дата", "Активная энергия, импорт"]]
 
 MeterData = TypedDict(
     "MeterData",
@@ -49,8 +73,19 @@ MeterData = TypedDict(
     },
 )
 
-# key - Серийный номер ПУ.
 meter_readings: dict[str, MeterData] = {}
+
+for serial_number, values in df.to_dict(orient="index").items():
+    meter_readings[str(serial_number)] = {
+        "date": str(values["Дата"]),
+        "readings": float(values["Активная энергия, импорт"]),
+    }
+
+current_date = strftime("%d.%m.%Y", localtime())
+meter_readings_date = ws_meter_readings["K6"].value
+
+alignment_date = Alignment(horizontal="center", vertical="center")
+alignment_value = Alignment(horizontal="right", vertical="center")
 
 for row in range(7, ws_meter_readings.max_row + 1):
     str_row_number = str(row)
