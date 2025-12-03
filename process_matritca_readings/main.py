@@ -92,7 +92,7 @@ df["Номер_ПУ"] = df["Номер_ПУ"].str.zfill(8)
 df["Дата"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
 current_date = strftime("%d.%m.%Y", localtime())
-df.insert(10, "Дата АСКУЭ", current_date)
+df.insert(10, "Дата_АСКУЭ", current_date)
 df["Способ снятия показаний"] = "УСПД"
 df["ТП"] = df["Адрес"].str.extract(r"(ТП-\d{1,3}(П)?)", expand=False)[0]
 
@@ -125,7 +125,7 @@ def style_ws(ws: Worksheet, title_range: str) -> None:
             cell.border = border
             cell.number_format = "@"
 
-            column_letter = cast(str, cell.column_letter)
+            column_letter = cell.column_letter
 
             if column_letter in ["E", "F", "G", "H"]:
                 cell.alignment = alignment_right
