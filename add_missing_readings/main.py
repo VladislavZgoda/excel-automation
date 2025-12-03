@@ -89,7 +89,7 @@ for meter_data in meters_readings:
     serial_number = meter_data["serial_number"]
     row_number = meter_data["row_number"]
     readings = meter_data["readings"]
-    cell_serial_number = int(ws_write_data["C" + row_number].value)
+    cell_serial_number = str(ws_write_data["C" + row_number].value)
 
     if serial_number != cell_serial_number:
         print(f"{serial_number} not fond in the 'write_data.xlsx'.")
