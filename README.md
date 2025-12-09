@@ -32,6 +32,20 @@ process_matritca_readings:
 3. Создать bat файл для запуска скрипта в cmd.
   К примеру:
   """
-  @py.exe D:\repos\excel-automation\process_legal_entities\main.py private(или legal)%*
+  @py.exe D:\repos\excel-automation\process_legal_entities\main.py private(или legal) %*
+  pause
+  """
+
+process_one_zone_meters:
+1. Создать папки input_files, output_files
+2. В папку input_files сохранить xlsx файлы matritca_readings и one_zone_meters:
+   - matritca_readings - Выгрузка показаний из Sims client.
+   Формат: #	Код потребителя	Серийный №	Дата	Активная энергия, импорт, тариф1	Активная энергия, импорт, тариф2	Активная энергия, импорт, тариф3	Активная энергия, импорт	Адрес	Наименование точки учета	Тип устройства
+  - one_zone_meters - Серийные номера однозонных ПУ модели NP7x. Берутся из 1С энергетика при создании ведомости для загрузки показаний.
+  Формат: В столбец "А" список серийных номеров
+3. Создать bat файл для запуска скрипта в cmd.
+  К примеру:
+  """
+  @py.exe D:\repos\excel-automation\process_one_zone_meters\main.py %*
   pause
   """
