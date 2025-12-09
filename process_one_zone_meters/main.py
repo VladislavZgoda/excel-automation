@@ -18,7 +18,7 @@ df_one_zone_meters = pl.read_excel(
 df = pl.read_excel(matritca_readings_path, read_options={"header_row": 1})
 
 # Удалить последнюю строку
-df = df[: len(df) - 1]
+df = df.slice(0, -1)
 
 df = df.rename(
     {
@@ -50,7 +50,7 @@ df = df.select(pl.all().gather(index_natsorted(df["ТП"])))
 
 # Добавить нумерацию для строк.
 df = df.with_columns(
-    pl.int_range(1, len(df) + 1).alias("№ п/п"),
+    pl.int_range(1, pl.len() + 1).alias("№ п/п"),
 )
 
 df = df.with_columns(
