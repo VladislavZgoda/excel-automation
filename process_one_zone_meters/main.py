@@ -1,5 +1,5 @@
 from pathlib import Path
-from time import strftime, localtime
+from datetime import date
 
 import polars as pl
 from xlsxwriter import Workbook
@@ -9,59 +9,51 @@ script_dir = Path(__file__).resolve().parent
 matritca_readings_path = script_dir / "input_files" / "matritca_readings.xlsx"
 one_zone_meters_path = script_dir / "input_files" / "one_zone_meters.xlsx"
 
-current_date = strftime("%d.%m.%Y", localtime())
+askue_date = date.today().strftime("%d.%m.%Y")
 
 df_one_zone_meters = pl.read_excel(
     one_zone_meters_path, read_options={"header_row": None}
 )
 
-df = pl.read_excel(matritca_readings_path, read_options={"header_row": 1})
-
-# Удалить последнюю строку
-df = df.slice(0, -1)
-
-df = df.rename(
-    {
-        "#": "№ п/п",
-        "Код потребителя": "Л/С",
-        "Серийный №": "Номер_ПУ",
-        "Активная энергия, импорт, тариф1": "Т1",
-        "Активная энергия, импорт, тариф2": "Т2",
-        "Активная энергия, импорт, тариф3": "Т3",
-        "Активная энергия, импорт": "Т сумм",
-        "Наименование точки учета": "ФИО абонента",
-        "Тип устройства": "Тип ПУ",
-    }
+df = (
+    pl.read_excel(matritca_readings_path, read_options={"header_row": 1})
+    .slice(0, -1)  # Удалить последнюю строку
+    .rename(
+        {
+            "#": "№ п/п",
+            "Код потребителя": "Л/С",
+            "Серийный №": "Номер_ПУ",
+            "Активная энергия, импорт, тариф1": "Т1",
+            "Активная энергия, импорт, тариф2": "Т2",
+            "Активная энергия, импорт, тариф3": "Т3",
+            "Активная энергия, импорт": "Т сумм",
+            "Наименование точки учета": "ФИО абонента",
+            "Тип устройства": "Тип ПУ",
+        }
+    )
 )
 
-df = df.with_columns(pl.col("Л/С").str.strip_chars("\n\r\t"))
-df = df.filter(pl.col("Л/С").str.starts_with("230700"))
-
-df = df.filter(pl.col("ФИО абонента") != "ОДПУ")
-
-df = df.with_columns(
-    pl.lit(current_date).alias("Дата АСКУЭ"),
-    pl.lit("УСПД").alias("Способ снятия показаний"),
-    pl.col("Адрес").str.extract(r"(ТП-\d{1,3})").alias("ТП"),
+df = df.with_columns(pl.col("Л/С").str.strip_chars("\n\r\t")).filter(
+    pl.col("Л/С").str.starts_with("230700"), pl.col("ФИО абонента") != "ОДПУ"
 )
 
-# Естественный порядок сортировки
-df = df.select(pl.all().gather(index_natsorted(df["ТП"])))
+df = (
+    df.with_columns(
+        pl.lit(askue_date).alias("Дата АСКУЭ"),
+        pl.lit("УСПД").alias("Способ снятия показаний"),
+        pl.col("Адрес").str.extract(r"(ТП-\d{1,3})").alias("ТП"),
+    )
+    # Естественный порядок сортировки
+    .pipe(lambda df: df.select(pl.all().gather(index_natsorted(df["ТП"]))))
+)
 
-# Добавить нумерацию для строк.
 df = df.with_columns(
+    # Добавить нумерацию для строк.
     pl.int_range(1, pl.len() + 1).alias("№ п/п"),
+    pl.col("Т1", "Т2", "Т3", "Т сумм").cast(pl.Float64, strict=False).round(2),
+    # Добавить 0 к началу серийного номера, если он из 7 цифр.
+    pl.col("Номер_ПУ").str.zfill(8),
 )
-
-df = df.with_columns(
-    pl.col("Т1").cast(pl.Float64, strict=False).round(2),
-    pl.col("Т2").cast(pl.Float64, strict=False).round(2),
-    pl.col("Т3").cast(pl.Float64, strict=False).round(2),
-    pl.col("Т сумм").cast(pl.Float64, strict=False).round(2),
-)
-
-# Добавить 0 к началу серийного номера, если он из 7 цифр.
-df = df.with_columns((pl.col("Номер_ПУ").str.zfill(8)))
 
 is_difference = pl.col("Т сумм").sub(pl.col("Т1").add(pl.col("Т2"))).abs().gt(1)
 
@@ -186,7 +178,7 @@ shared_column_formats = {
 }
 
 supplement_nine_path = (
-    script_dir / "output_files" / f"Приложение №9 Быт {current_date}.xlsx"
+    script_dir / "output_files" / f"Приложение №9 Быт {askue_date}.xlsx"
 )
 
 with Workbook(supplement_nine_path) as wb:
@@ -235,25 +227,19 @@ with Workbook(supplement_nine_path) as wb:
         },
     )
 
-df_askue_register = df.select(
-    "№ п/п",
-    "Л/С",
-    "Номер_ПУ",
-    "Дата",
-    "Т1",
-    "Т2",
-    "Т3",
-    "Т сумм",
-    "Адрес",
-    "ФИО абонента",
-)
-
-df_askue_register = df_askue_register.with_columns(
+df_askue_register = df_supplement_nine.select(
+    pl.all().exclude(
+        "Дата АСКУЭ",
+        "Тип ПУ",
+        "Способ снятия показаний",
+        "ТП",
+    )
+).with_columns(
     pl.lit(None).alias("Ведомость_КС"),
     pl.lit("Згода В.Г.").alias("Контролер"),
 )
 
-askue_register_path = script_dir / "output_files" / f"АСКУЭ Быт {current_date}.xlsx"
+askue_register_path = script_dir / "output_files" / f"АСКУЭ Быт {askue_date}.xlsx"
 
 with Workbook(askue_register_path) as wb:
     ws = wb.add_worksheet()
