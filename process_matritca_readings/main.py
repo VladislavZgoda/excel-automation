@@ -1,7 +1,7 @@
 from typing import cast
 from pathlib import Path
 from sys import argv, exit
-from time import strftime, localtime
+from datetime import date
 
 import pandas as pd
 import numpy as np
@@ -91,8 +91,8 @@ df["Номер_ПУ"] = df["Номер_ПУ"].str.zfill(8)
 
 df["Дата"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
-current_date = strftime("%d.%m.%Y", localtime())
-df.insert(10, "Дата_АСКУЭ", current_date)
+askue_date = date.today().strftime("%d.%m.%Y")
+df.insert(10, "Дата_АСКУЭ", askue_date)
 df["Способ снятия показаний"] = "УСПД"
 df["ТП"] = df["Адрес"].str.extract(r"(ТП-\d{1,3}(П)?)", expand=False)[0]
 
@@ -162,12 +162,12 @@ wb, ws = write_df_to_wb(df)
 style_ws(ws=ws, title_range="A1:N1")
 
 wb.save(
-    output_path / f"Приложение №9 {f'Быт {current_date}' if is_private else 'Юр'}.xlsx"
+    output_path / f"Приложение №9 {f'Быт {askue_date}' if is_private else 'Юр'}.xlsx"
 )
 
 if is_private:
     df.drop(
-        ["Дата АСКУЭ", "Тип ПУ", "Способ снятия показаний", "ТП"], axis=1, inplace=True
+        ["Дата_АСКУЭ", "Тип ПУ", "Способ снятия показаний", "ТП"], axis=1, inplace=True
     )
 
     df["Ведомость_КС"] = ""
@@ -175,4 +175,4 @@ if is_private:
 
     wb, ws = write_df_to_wb(df)
     style_ws(ws=ws, title_range="A1:L1")
-    wb.save(output_path / f"АСКУЭ Быт {current_date}.xlsx")
+    wb.save(output_path / f"АСКУЭ Быт {askue_date}.xlsx")
