@@ -39,7 +39,7 @@ df = df.with_columns(pl.col("Л/С").str.strip_chars("\n\r\t")).filter(
 
 df = (
     df.with_columns(
-        pl.lit(askue_date).alias("Дата АСКУЭ"),
+        pl.lit(askue_date).alias("Дата_АСКУЭ"),
         pl.lit("УСПД").alias("Способ снятия показаний"),
         pl.col("Адрес").str.extract(r"(ТП-\d{1,3})").alias("ТП"),
     )
@@ -243,7 +243,7 @@ askue_register_path = script_dir / "output_files" / f"АСКУЭ Быт {askue_d
 
 with Workbook(askue_register_path) as wb:
     ws = wb.add_worksheet()
-    ws.name = "Быт"
+    ws.name = "БЫТ"
 
     merge_format = wb.add_format({**merge_styles})
 
