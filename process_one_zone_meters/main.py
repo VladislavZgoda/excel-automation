@@ -79,7 +79,7 @@ df_supplement_nine = df.select(
     "Т сумм",
     "Адрес",
     "ФИО абонента",
-    "Дата АСКУЭ",
+    "Дата_АСКУЭ",
     "Тип ПУ",
     "Способ снятия показаний",
     "ТП",
@@ -204,7 +204,7 @@ with Workbook(supplement_nine_path) as wb:
         header_format={**header_styles},
         column_formats={
             **shared_column_formats,
-            "Дата АСКУЭ": {
+            "Дата_АСКУЭ": {
                 **font_styles,
                 **border_styles,
                 **alignment_center,
@@ -229,7 +229,7 @@ with Workbook(supplement_nine_path) as wb:
 
 df_askue_register = df_supplement_nine.select(
     pl.all().exclude(
-        "Дата АСКУЭ",
+        "Дата_АСКУЭ",
         "Тип ПУ",
         "Способ снятия показаний",
         "ТП",
