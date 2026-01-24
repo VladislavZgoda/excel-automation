@@ -14,7 +14,7 @@ process_legal_entities:
 1. Создать папки input_files, output_files и templates.
 2. В папку input_files сохранить xlsx файлы meter_readings, current_meter_readings и matritca_readings:
    - meter_readings.xlsx - Отчет "Новые показания" из Пирамида 2
-   - current_meter_reading.xlsx - Выгрузка показаний из Пирамида 2 с А+ текущие
+   - current_meter_readings.xlsx - Выгрузка показаний из Пирамида 2 с А+ текущие
    - matritca_readings.xlsx  - Выгрузка показаний из Sims client.
 3. В папку templates сохранить ведомости без показаний.
 4. Создать bat файл для запуска скрипта в cmd.
