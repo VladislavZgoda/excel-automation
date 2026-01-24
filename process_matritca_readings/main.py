@@ -78,7 +78,6 @@ df.columns = [
 df = df.iloc[:-1]
 
 df["Л/С"] = df["Л/С"].str.extract(r"(\d{12})")
-# df = df[pd.col("Л/С").notna()]
 df = df[pd.col("Л/С").str.startswith(consumer_number_filter)]
 
 if is_private:
