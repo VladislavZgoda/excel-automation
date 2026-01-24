@@ -142,9 +142,12 @@ def style_ws(ws: Worksheet, title_range: str) -> None:
                 cell.font = font
 
     ws.column_dimensions["B"].width = 14
-    ws.column_dimensions["I"].width = 20
+    ws.column_dimensions["C"].width = 10
+    ws.column_dimensions["D"].width = 10
+    ws.column_dimensions["I"].width = 25
     ws.column_dimensions["J"].width = 25
-    ws.column_dimensions["L"].width = 18
+    ws.column_dimensions["K"].width = 13
+    ws.column_dimensions["L"].width = 25
 
     for row in range(1, ws.max_row + 1):
         ws.row_dimensions[row].height = None
