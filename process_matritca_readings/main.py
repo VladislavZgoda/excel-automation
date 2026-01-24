@@ -77,17 +77,15 @@ df.columns = [
 # Удалить последнюю строку.
 df = df.iloc[:-1]
 
-df["Л/С"] = df["Л/С"].astype("str").str.extract(r"(\d{12})")
-df = df[df["Л/С"].notna()]
-df = df[df["Л/С"].str.startswith(consumer_number_filter)]
+df["Л/С"] = df["Л/С"].str.extract(r"(\d{12})")
+# df = df[pd.col("Л/С").notna()]
+df = df[pd.col("Л/С").str.startswith(consumer_number_filter)]
 
 if is_private:
-    df = df[df["ФИО абонента"] != "ОДПУ"]
-
-df["Номер_ПУ"] = df["Номер_ПУ"].astype("int").astype("str")
+    df = df[pd.col("ФИО абонента") != "ОДПУ"]
 
 # Добавить 0 к началу серийного номера, если он из 7 цифр.
-df["Номер_ПУ"] = df["Номер_ПУ"].str.zfill(8)
+df["Номер_ПУ"] = df["Номер_ПУ"].apply(int).apply(str).str.zfill(8)
 
 df["Дата"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
