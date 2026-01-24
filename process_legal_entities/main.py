@@ -50,18 +50,19 @@ except FileNotFoundError:
 df = df.iloc[:-1]
 
 df["Код потребителя"] = df["Код потребителя"].str.extract(r"(\d{12})")
-df = df[df["Код потребителя"].notna()]
-df = df[~df["Код потребителя"].str[:6].isin(["230700", "230710"])]
+
+# Оставить только ВИП потребителей.
+df = df[pd.col("Код потребителя").notna()]
+df = df[~pd.col("Код потребителя").str.slice(stop=6).isin(["230700", "230710"])]
 
 # Убрать повторяющиеся строки с ПУ у которых выгрузились Т1-Т2 и Т общ отдельно.
-df = df[df["Активная энергия, импорт"].notna()]
-
+df = df[pd.col("Активная энергия, импорт").notna()]
 df["Дата"] = df["Дата"].dt.strftime("%d.%m.%Y")
-df["Серийный №"] = df["Серийный №"].astype("int").astype("str")
 
 # Добавить 0 к началу серийного номера, если он из 7 цифр.
-df["Серийный №"] = df["Серийный №"].str.zfill(8)
-df = df.set_index("Серийный №")[["Дата", "Активная энергия, импорт"]]
+df["Серийный №"] = df["Серийный №"].apply(int).apply(str).str.zfill(8)
+
+df = df[["Серийный №", "Дата", "Активная энергия, импорт"]]
 
 MeterData = TypedDict(
     "MeterData",
@@ -73,10 +74,10 @@ MeterData = TypedDict(
 
 meter_readings: dict[str, MeterData] = {}
 
-for serial_number, values in df.to_dict(orient="index").items():
-    meter_readings[str(serial_number)] = {
-        "date": str(values["Дата"]),
-        "readings": float(values["Активная энергия, импорт"]),
+for record in df.to_dict(orient="records"):
+    meter_readings[str(record["Серийный №"])] = {
+        "date": str(record["Дата"]),
+        "readings": float(record["Активная энергия, импорт"]),
     }
 
 current_date = strftime("%d.%m.%Y", localtime())
