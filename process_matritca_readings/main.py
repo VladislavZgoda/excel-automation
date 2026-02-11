@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import cast
 from pathlib import Path
 from sys import argv, exit
@@ -77,7 +78,7 @@ df.columns = [
 # Удалить последнюю строку.
 df = df.iloc[:-1]
 
-df["Л/С"] = df["Л/С"].str.extract(r"(\d{12})")
+df["Л/С"] = df["Л/С"].apply(str).str.extract(r"(\d{12})")
 df = df[pd.col("Л/С").str.startswith(consumer_number_filter)]
 
 if is_private:
