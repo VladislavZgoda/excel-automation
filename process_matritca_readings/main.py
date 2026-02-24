@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import cast
 from pathlib import Path
 from sys import argv, exit
@@ -28,7 +27,7 @@ matritca_readings_path = script_dir / "input_files" / "matritca_readings.xlsx"
 output_path = script_dir / "output_files"
 
 is_private = True if argv[1] == "private" else False
-consumer_number_filter = "230700" if is_private else "230710"
+consumer_number_filter = "230700" if is_private else ("230710", "230760")
 
 alignment_center = Alignment(
     horizontal="center",
