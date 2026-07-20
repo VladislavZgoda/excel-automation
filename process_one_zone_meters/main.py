@@ -39,8 +39,9 @@ df = df.with_columns(pl.col("Л/С").str.strip_chars("\n\r\t")).filter(
 
 df = (
     df.with_columns(
-        pl.lit(askue_date).alias("Дата_АСКУЭ"),
+        pl.lit(askue_date, dtype=pl.String).alias("Дата_АСКУЭ"),
         pl.lit("УСПД").alias("Способ снятия показаний"),
+        pl.col("Дата").dt.to_string("%d.%m.%Y"),
         pl.col("Адрес").str.extract(r"(ТП-\d{1,3})").alias("ТП"),
     )
     # Естественный порядок сортировки
@@ -140,11 +141,7 @@ shared_column_formats = {
         **border_styles,
         **alignment_center,
     },
-    "Дата": {
-        **font_styles,
-        **border_styles,
-        **alignment_center,
-    },
+    "Дата": {**font_styles, **border_styles, **alignment_center, "num_format": "@"},
     "Т1": {
         **font_styles,
         **border_styles,
@@ -200,7 +197,7 @@ with Workbook(supplement_nine_path) as wb:
         float_precision=2,
         autofit=True,
         column_widths={"№ п/п": 40},
-        dtype_formats={pl.Date: "dd.mm.yyyy;@", pl.Int64: "@", pl.Float64: "@"},
+        dtype_formats={pl.Int64: "@", pl.Float64: "@"},
         header_format={**header_styles},
         column_formats={
             **shared_column_formats,
@@ -208,6 +205,7 @@ with Workbook(supplement_nine_path) as wb:
                 **font_styles,
                 **border_styles,
                 **alignment_center,
+                "num_format": "@",
             },
             "Тип ПУ": {
                 **font_styles,
@@ -260,7 +258,7 @@ with Workbook(askue_register_path) as wb:
         float_precision=2,
         autofit=True,
         column_widths={"№ п/п": 40},
-        dtype_formats={pl.Date: "dd.mm.yyyy;@", pl.Int64: "@", pl.Float64: "@"},
+        dtype_formats={pl.Int64: "@", pl.Float64: "@"},
         header_format={**header_styles},
         column_formats={
             **shared_column_formats,
