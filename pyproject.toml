@@ -15,6 +15,7 @@ dependencies = [
     "ruff>=0.14.13",
     "textual>=8.2.8",
     "textual-dev>=1.8.0",
+    "textual-fspicker>=1.0.1",
     "ty>=0.0.13",
     "types-openpyxl>=3.1.5.20250919",
     "xlsxwriter>=3.2.9",
