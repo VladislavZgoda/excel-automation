@@ -1,0 +1,14 @@
+Sidebar {
+    width: 24;
+    border-right: solid $accent;
+}
+
+ContentSwitcher {
+    width: 1fr;
+    padding: 1 2;
+}
+
+ListItem {
+    margin-left: 1;
+    margin-right: 1;
+}
