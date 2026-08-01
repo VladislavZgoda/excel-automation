@@ -32,7 +32,7 @@ class FilePicker(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Button(self.button_text, variant="primary", id=f"{self.picker_id}_btn")
+        yield Button(self.button_text, variant="warning", id=f"{self.picker_id}_btn")
         yield Label(id=f"{self.picker_id}_label", variant="success")
 
     @on(Button.Pressed)
@@ -45,6 +45,7 @@ class FilePicker(Widget):
             FileOpen(FILE_LOCATION, filters=FILE_FILTER)
         ):
             self.query_one(f"#{self.picker_id}_label", Label).update(file_opened.name)
+            self.query_one(f"#{self.picker_id}_btn", Button).variant = "success"
             self.post_message(FilePathSelected(file_opened, self.picker_id))
 
     def reset(self) -> None:
