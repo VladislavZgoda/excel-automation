@@ -1,17 +1,17 @@
 from typing import ClassVar
 
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal
+from textual.containers import Horizontal
 from textual.widgets import (
-    Button,
     ContentSwitcher,
     Footer,
     Header,
     Label,
     ListItem,
     ListView,
-    Static,
 )
+
+from widgets.matritca_readings_panel import MatritcaReadingsPanel
 
 
 class MyApp(App):
@@ -44,11 +44,6 @@ class MyApp(App):
 class Sidebar(ListView):
     def compose(self) -> ComposeResult:
         yield ListItem(Label("Обработать ПУ Матрица"), id="panel_matritca_readings")
-
-
-class MatritcaReadingsPanel(Container):
-    def compose(self) -> ComposeResult:
-        yield Static("Трансформировать экспорт из Sims в формат для 1С, Приложение №9.")
 
 
 if __name__ == "__main__":
