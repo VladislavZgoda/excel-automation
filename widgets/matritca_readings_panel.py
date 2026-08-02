@@ -1,4 +1,5 @@
 from pathlib import Path
+from pprint import pprint
 from typing import cast, get_args
 
 from textual import on
@@ -64,6 +65,7 @@ class MatritcaReadingsPanel(Container):
         filtered_readings = filterReadings(
             self.readings_path, balance_group=balance_group
         )
+        pprint(filtered_readings)
 
     def _check_and_enable_process_data_btn(self) -> None:
         if self.readings_path is None:
