@@ -1,5 +1,4 @@
 from pathlib import Path
-from pprint import pprint
 from typing import cast, get_args
 
 from textual import on
@@ -14,6 +13,7 @@ from textual.widgets import (
 
 from filters.matritca_readings import BalanceGroupType, filterReadings
 from widgets.file_picker import FilePathSelected, FilePicker
+from write_to_excel.matritca_readings import create_wb_reports
 
 
 class MatritcaReadingsPanel(Container):
@@ -62,10 +62,8 @@ class MatritcaReadingsPanel(Container):
                 f"Требуется значение 'Быт' или 'Юр', получен {balance_group}."
             )
 
-        filtered_readings = filterReadings(
-            self.readings_path, balance_group=balance_group
-        )
-        pprint(filtered_readings)
+        filtered_readings = filterReadings(self.readings_path, balance_group)
+        wb_reports = create_wb_reports(filtered_readings, balance_group)
 
     def _check_and_enable_process_data_btn(self) -> None:
         if self.readings_path is None:
