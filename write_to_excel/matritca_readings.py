@@ -77,7 +77,7 @@ def create_wb_reports(
             position="A2",
             float_precision=2,
             autofit=True,
-            column_widths={"№ п/п": 40},
+            column_widths={"№ п/п": 40, "ФИО абонента": 200, "Адрес": 180},
             dtype_formats={pl.Int64: "@", pl.Float64: "@"},
             header_format=formats.header,
             column_formats=column_formats,
@@ -129,7 +129,7 @@ def create_wb_reports(
             position="A2",
             float_precision=2,
             autofit=True,
-            column_widths={"№ п/п": 40},
+            column_widths={"№ п/п": 40, "ФИО абонента": 200, "Адрес": 180},
             dtype_formats={pl.Int64: "@", pl.Float64: "@"},
             header_format=formats.header,
             column_formats=column_formats,
@@ -155,7 +155,7 @@ def _build_common_formats(wb: Workbook) -> CommonFormats:
     font_styles = {"font_name": "Times New Roman", "font_size": 10}
     border_styles = {"border": 1, "border_color": "black"}
     alignment_center = {"align": "center", "valign": "vcenter"}
-    alignment_left = {"align": "left", "valign": "vcenter"}
+    alignment_left = {"align": "left", "valign": "vcenter", "text_wrap": True}
     alignment_right = {"align": "right", "valign": "vcenter"}
 
     header_styles = {
