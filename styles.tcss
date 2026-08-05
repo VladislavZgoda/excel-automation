@@ -23,18 +23,19 @@ Button {
     margin-bottom: 1;
 }
 
-#process-data-btn {
-    width: 29;
-    margin-top: 1;
-    margin-left: 1;
-}
 
 Select {
     margin-left: 0;
     width: 31;
 }
 
-#select-btn{
+#select-btn {
     margin-top: 1;
     margin-bottom: 1;
+}
+
+.action-btn {
+    width: 29;
+    margin-top: 1;
+    margin-left: 1;
 }
