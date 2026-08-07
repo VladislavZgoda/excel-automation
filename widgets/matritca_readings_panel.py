@@ -66,6 +66,7 @@ class MatritcaReadingsPanel(Container):
         self.balance_group = cast(BalanceGroupType, event.value)
 
     @on(Button.Pressed, "#process-data-btn")
+    @work(thread=True)
     def handle_process_data_btn(self) -> None:
         balance_group = self.balance_group
 
@@ -80,10 +81,11 @@ class MatritcaReadingsPanel(Container):
                 f"Требуется значение 'Быт' или 'Юр', получен {balance_group}."
             )
 
+        self.app.call_from_thread(self._on_process_data_start)
         filtered_readings = filterReadings(self.readings_path, balance_group)
-        self.wb_reports = create_wb_reports(filtered_readings, balance_group)
+        wb_reports = create_wb_reports(filtered_readings, balance_group)
 
-        self._enable_save_file_btn()
+        self.app.call_from_thread(self._on_process_data_done, wb_reports)
         self.notify("Данные обработаны.", timeout=10)
 
     @on(Button.Pressed, "#save-file-btn")
@@ -116,7 +118,12 @@ class MatritcaReadingsPanel(Container):
         process_data_btn.disabled = False
         process_data_btn.variant = "primary"
 
-    def _enable_save_file_btn(self) -> None:
+    def _on_process_data_start(self) -> None:
+        self.query_one("#process-data-btn", Button).loading = True
+
+    def _on_process_data_done(self, wb_reports: tuple[BytesIO, BytesIO]) -> None:
+        self.wb_reports = wb_reports
+        self.query_one("#process-data-btn", Button).loading = False
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
