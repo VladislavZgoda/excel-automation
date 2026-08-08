@@ -36,26 +36,26 @@ class FilePicker(Widget):
     def compose(self) -> ComposeResult:
         initial_variant = "default" if self.disabled else "warning"
         yield Button(
-            self.button_text, variant=initial_variant, id=f"{self.picker_id}_btn"
+            self.button_text, variant=initial_variant, id=f"{self.picker_id}-btn"
         )
-        yield Label(id=f"{self.picker_id}_label", variant="success")
+        yield Label(id=f"{self.picker_id}-label", variant="success")
 
     def watch_disabled(self, disabled: bool) -> None:
-        btn = self.query_one(f"#{self.picker_id}_btn", Button)
+        btn = self.query_one(f"#{self.picker_id}-btn", Button)
         btn.variant = "default" if disabled else "warning"
 
     @on(Button.Pressed)
     @work
     async def open_file(self, event: Button.Pressed) -> None:
-        if event.button.id != f"{self.picker_id}_btn":
+        if event.button.id != f"{self.picker_id}-btn":
             return
 
         if file_opened := await self.app.push_screen_wait(
             FileOpen(FILE_LOCATION, filters=FILE_FILTER)
         ):
-            self.query_one(f"#{self.picker_id}_label", Label).update(file_opened.name)
-            self.query_one(f"#{self.picker_id}_btn", Button).variant = "success"
+            self.query_one(f"#{self.picker_id}-label", Label).update(file_opened.name)
+            self.query_one(f"#{self.picker_id}-btn", Button).variant = "success"
             self.post_message(FilePathSelected(file_opened, self.picker_id))
 
     def reset(self) -> None:
-        self.query_one(f"#{self.picker_id}_label", Label).update("")
+        self.query_one(f"#{self.picker_id}-label", Label).update("")
