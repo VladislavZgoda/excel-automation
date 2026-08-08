@@ -26,14 +26,23 @@ class FilePicker(Widget):
         self,
         button_text: str,
         picker_id: str,
+        id: str | None = None,
+        disabled: bool = False,
     ) -> None:
         self.button_text = button_text
         self.picker_id = picker_id
-        super().__init__()
+        super().__init__(id=id, disabled=disabled)
 
     def compose(self) -> ComposeResult:
-        yield Button(self.button_text, variant="warning", id=f"{self.picker_id}_btn")
+        initial_variant = "default" if self.disabled else "warning"
+        yield Button(
+            self.button_text, variant=initial_variant, id=f"{self.picker_id}_btn"
+        )
         yield Label(id=f"{self.picker_id}_label", variant="success")
+
+    def watch_disabled(self, disabled: bool) -> None:
+        btn = self.query_one(f"#{self.picker_id}_btn", Button)
+        btn.variant = "default" if disabled else "warning"
 
     @on(Button.Pressed)
     @work

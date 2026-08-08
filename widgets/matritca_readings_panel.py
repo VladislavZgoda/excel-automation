@@ -10,11 +10,7 @@ from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.reactive import var
-from textual.widgets import (
-    Button,
-    Select,
-    Static,
-)
+from textual.widgets import Button, Checkbox, Select, Static
 from textual_fspicker import FileSave, Filters
 
 from filters.matritca_readings import BalanceGroupType, filterReadings
@@ -24,6 +20,7 @@ from write_to_excel.matritca_readings import create_wb_reports
 
 class MatritcaReadingsPanel(Container):
     readings_path: var[Path | None] = var(None)
+    list_1c_path: var[Path | None] = var(None)
     balance_group: var[BalanceGroupType | None] = var(None)
     wb_reports: var[tuple[BytesIO, BytesIO] | None] = var(None)
 
@@ -36,6 +33,13 @@ class MatritcaReadingsPanel(Container):
         yield FilePicker(
             "Выберите файл с показаниями",
             "meter-readings",
+        )
+        yield Checkbox("Изменить однозонные ПУ")
+        yield FilePicker(
+            "Выберите файл с выгрузкой 1С",
+            picker_id="list-1C",
+            id="list-1c-picker",
+            disabled=True,
         )
         yield Button(
             "Обработать данные",
@@ -56,14 +60,31 @@ class MatritcaReadingsPanel(Container):
         match event.picker_id:
             case "meter-readings":
                 self.readings_path = event.file_path
+            case "list-1C":
+                self.list_1c_path = event.file_path
             case _:
                 return
 
         self._check_and_enable_process_data_btn()
 
-    @on(Select.Changed)
-    def select_changed(self, event: Select.Changed) -> None:
+    def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
+        list_1c_picker = self.query_one("#list-1c-picker", FilePicker)
+        list_1c_picker.disabled = not event.value
+
+        if not event.value:
+            self.list_1c_path = None
+            list_1c_picker.reset()
+
+    def on_select_changed(self, event: Select.Changed) -> None:
         self.balance_group = cast(BalanceGroupType, event.value)
+
+        checkbox = self.query_one(Checkbox)
+        is_private = self.balance_group == "Быт"
+
+        checkbox.disabled = not is_private
+
+        if not is_private:
+            checkbox.value = False
 
     @on(Button.Pressed, "#process-data-btn")
     @work(thread=True)
