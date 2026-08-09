@@ -55,7 +55,9 @@ class FilePicker(Widget):
         ):
             self.query_one(f"#{self.picker_id}-label", Label).update(file_opened.name)
             self.query_one(f"#{self.picker_id}-btn", Button).variant = "success"
+            self.add_class("file-selected")
             self.post_message(FilePathSelected(file_opened, self.picker_id))
 
     def reset(self) -> None:
         self.query_one(f"#{self.picker_id}-label", Label).update("")
+        self.remove_class("file-selected")

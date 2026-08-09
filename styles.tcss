@@ -23,7 +23,6 @@ Button {
     margin-bottom: 1;
 }
 
-
 Select {
     margin-left: 0;
     width: 31;
@@ -37,5 +36,10 @@ Select {
 .action-btn {
     width: 29;
     margin-top: 1;
+    margin-left: 1;
+}
+
+FilePicker.file-selected {
+    margin-bottom: 1;
     margin-left: 1;
 }
