@@ -15,7 +15,7 @@ from textual_fspicker import FileSave, Filters
 
 from askue_etl.matritca_readings import BalanceGroupType, prepare_readings
 from widgets.file_picker import FILE_LOCATION, FilePathSelected, FilePicker
-from write_to_excel.matritca_readings import create_wb_reports
+from write_to_excel.matritca_readings import write_readings_reports
 
 
 class MatritcaReadingsPanel(Container):
@@ -106,7 +106,7 @@ class MatritcaReadingsPanel(Container):
         prepared_readings = prepare_readings(
             self.readings_path, balance_group, self.list_1c_path
         )
-        wb_reports = create_wb_reports(prepared_readings, balance_group)
+        wb_reports = write_readings_reports(prepared_readings, balance_group)
 
         self.app.call_from_thread(self._on_process_data_done, wb_reports)
         self.notify("Данные обработаны.", timeout=10)

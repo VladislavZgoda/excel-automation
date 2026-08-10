@@ -12,7 +12,7 @@ from askue_etl.matritca_readings import BalanceGroupType
 ColumnFormats = dict[str | Selector | tuple[str | Selector, ...], Format]
 
 
-def create_wb_reports(
+def write_readings_reports(
     ridings: pl.DataFrame, balance_group: BalanceGroupType
 ) -> tuple[BytesIO, BytesIO]:
     buffer_register = BytesIO()
