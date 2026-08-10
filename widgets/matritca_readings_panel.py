@@ -65,6 +65,7 @@ class MatritcaReadingsPanel(Container):
             case _:
                 return
 
+        self._reset_readings_reports()
         self._check_and_enable_process_data_btn()
 
     def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
@@ -150,6 +151,13 @@ class MatritcaReadingsPanel(Container):
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
+
+    def _reset_readings_reports(self) -> None:
+        self.wb_reports = None
+
+        save_file_btn = self.query_one("#save-file-btn", Button)
+        save_file_btn.disabled = True
+        save_file_btn.variant = "default"
 
     def _write_zip(
         self,
