@@ -14,8 +14,8 @@ from textual.widgets import Button, Checkbox, Select, Static
 from textual_fspicker import FileSave, Filters
 
 from askue_etl.readings.matritca_readings import BalanceGroupType, prepare_readings
+from askue_etl.reports.matritca_readings import write_readings_reports
 from widgets.file_picker import FILE_LOCATION, FilePathSelected, FilePicker
-from write_to_excel.matritca_readings import write_readings_reports
 
 
 class MatritcaReadingsPanel(Container):
