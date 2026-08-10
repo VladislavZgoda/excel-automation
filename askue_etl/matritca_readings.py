@@ -9,7 +9,7 @@ from natsort import index_natsorted
 BalanceGroupType = Literal["Быт", "Юр"]
 
 
-def filterReadings(
+def prepare_readings(
     readings_path: Path, balance_group: BalanceGroupType, list_1c_path: Path | None
 ) -> pl.DataFrame:
     askue_date = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%d.%m.%Y")

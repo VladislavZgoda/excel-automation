@@ -7,7 +7,7 @@ from polars.selectors import Selector
 from xlsxwriter import Workbook
 from xlsxwriter.format import Format
 
-from filters.matritca_readings import BalanceGroupType
+from askue_etl.matritca_readings import BalanceGroupType
 
 ColumnFormats = dict[str | Selector | tuple[str | Selector, ...], Format]
 
