@@ -10,7 +10,7 @@ BalanceGroupType = Literal["Быт", "Юр"]
 
 
 def filterReadings(
-    readings_path: Path, balance_group: BalanceGroupType
+    readings_path: Path, balance_group: BalanceGroupType, list_1c_path: Path | None
 ) -> pl.DataFrame:
     askue_date = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%d.%m.%Y")
     consumer_number_filter = "230700" if balance_group == "Быт" else "230710"
@@ -18,6 +18,28 @@ def filterReadings(
     filters = [pl.col("Л/С").str.starts_with(consumer_number_filter)]
     if balance_group == "Быт":
         filters.append(pl.col("ФИО абонента") != "ОДПУ")
+
+    condition: pl.Expr | None = None
+    if balance_group == "Быт" and list_1c_path is not None:
+        one_zone_meters = (
+            pl.read_excel(list_1c_path)
+            .with_columns(
+                pl.col("Зонность").str.strip_chars(),
+                pl.col("Тарифная зона").str.strip_chars(),
+            )
+            .filter(
+                pl.col("Зонность") == "Однозонный",
+                pl.col("Тарифная зона") == "День",
+                pl.col("Тип прибора учета").str.contains(r"NP\s?7"),
+            )
+            .get_column("Заводской номер")
+            .str.strip_chars()
+            .implode()
+        )
+
+        is_one_zone = pl.col("Номер_ПУ").is_in(one_zone_meters)
+        is_difference = pl.col("Т сумм").sub(pl.col("Т1").add(pl.col("Т2"))).abs().gt(1)
+        condition = is_one_zone & is_difference
 
     return (
         pl.read_excel(readings_path, read_options={"header_row": 1})
@@ -51,4 +73,16 @@ def filterReadings(
             # Добавить 0 к началу серийного номера, если он из 7 цифр.
             pl.col("Номер_ПУ").str.zfill(8),
         )
+        .pipe(_fix_one_zone_meter_values, condition)
+    )
+
+
+def _fix_one_zone_meter_values(
+    df: pl.DataFrame, condition: pl.Expr | None
+) -> pl.DataFrame:
+    if condition is None:
+        return df
+    return df.with_columns(
+        pl.when(condition).then(pl.col("Т сумм")).otherwise(pl.col("Т1")).alias("Т1"),
+        pl.when(condition).then(0).otherwise(pl.col("Т2")).alias("Т2"),
     )

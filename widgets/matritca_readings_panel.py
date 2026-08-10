@@ -103,7 +103,9 @@ class MatritcaReadingsPanel(Container):
             )
 
         self.app.call_from_thread(self._on_process_data_start)
-        filtered_readings = filterReadings(self.readings_path, balance_group)
+        filtered_readings = filterReadings(
+            self.readings_path, balance_group, self.list_1c_path
+        )
         wb_reports = create_wb_reports(filtered_readings, balance_group)
 
         self.app.call_from_thread(self._on_process_data_done, wb_reports)
