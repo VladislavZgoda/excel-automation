@@ -22,7 +22,7 @@ class MatritcaReadingsPanel(Container):
     readings_path: var[Path | None] = var(None)
     list_1c_path: var[Path | None] = var(None)
     balance_group: var[BalanceGroupType | None] = var(None)
-    wb_reports: var[tuple[BytesIO, BytesIO] | None] = var(None)
+    readings_reports: var[tuple[BytesIO, BytesIO] | None] = var(None)
 
     def compose(self) -> ComposeResult:
         yield Static("Трансформировать экспорт из Sims в формат для 1С, Приложение №9.")
@@ -107,15 +107,15 @@ class MatritcaReadingsPanel(Container):
         prepared_readings = prepare_readings(
             self.readings_path, balance_group, self.list_1c_path
         )
-        wb_reports = write_readings_reports(prepared_readings, balance_group)
+        readings_reports = write_readings_reports(prepared_readings, balance_group)
 
-        self.app.call_from_thread(self._on_process_data_done, wb_reports)
+        self.app.call_from_thread(self._on_process_data_done, readings_reports)
         self.notify("Данные обработаны.", timeout=10)
 
     @on(Button.Pressed, "#save-file-btn")
     @work
     async def handle_save_btn(self) -> None:
-        if self.wb_reports is None:
+        if self.readings_reports is None:
             raise ValueError("Требуется объект tuple [BytesIO, BytesIO], получен None.")
         if save_path := await self.app.push_screen_wait(
             FileSave(
@@ -123,7 +123,7 @@ class MatritcaReadingsPanel(Container):
                 filters=Filters(("ZIP", lambda p: p.suffix.lower() == ".zip")),
             ),
         ):
-            register_buf, supplement_nine_buf = self.wb_reports
+            register_buf, supplement_nine_buf = self.readings_reports
 
             await asyncio.to_thread(
                 self._write_zip,
@@ -145,15 +145,15 @@ class MatritcaReadingsPanel(Container):
     def _on_process_data_start(self) -> None:
         self.query_one("#process-data-btn", Button).loading = True
 
-    def _on_process_data_done(self, wb_reports: tuple[BytesIO, BytesIO]) -> None:
-        self.wb_reports = wb_reports
+    def _on_process_data_done(self, readings_reports: tuple[BytesIO, BytesIO]) -> None:
+        self.readings_reports = readings_reports
         self.query_one("#process-data-btn", Button).loading = False
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
 
     def _reset_readings_reports(self) -> None:
-        self.wb_reports = None
+        self.readings_reports = None
 
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = True
