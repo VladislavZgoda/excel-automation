@@ -126,6 +126,7 @@ class MatritcaReadingsPanel(Container):
                 self._write_zip, save_path.with_suffix(".zip"), self.readings_reports
             )
 
+            self._reset_state()
             self.notify("Файл сохранён.", timeout=10)
 
     def _check_and_enable_process_data_btn(self) -> None:
@@ -148,6 +149,26 @@ class MatritcaReadingsPanel(Container):
 
     def _reset_readings_reports(self) -> None:
         self.readings_reports = None
+
+        save_file_btn = self.query_one("#save-file-btn", Button)
+        save_file_btn.disabled = True
+        save_file_btn.variant = "default"
+
+    def _reset_state(self) -> None:
+        self.readings_path = None
+        self.list_1c_path = None
+        self.balance_group = None
+        self.readings_reports = None
+
+        self.query_one(Select).value = "Быт"
+        self.query_one(Checkbox).value = False
+
+        for picker in self.query(FilePicker):
+            picker.reset()
+
+        process_data_btn = self.query_one("#process-data-btn", Button)
+        process_data_btn.disabled = True
+        process_data_btn.variant = "default"
 
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = True

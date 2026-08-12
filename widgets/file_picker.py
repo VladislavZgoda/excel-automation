@@ -60,4 +60,7 @@ class FilePicker(Widget):
 
     def reset(self) -> None:
         self.query_one(f"#{self.picker_id}-label", Label).update("")
+        self.query_one(f"#{self.picker_id}-btn", Button).variant = (
+            "default" if self.disabled else "warning"
+        )
         self.remove_class("file-selected")
