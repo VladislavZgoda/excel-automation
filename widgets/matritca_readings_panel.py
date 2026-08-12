@@ -1,7 +1,6 @@
 import asyncio
 import zipfile
 from datetime import datetime
-from io import BytesIO
 from pathlib import Path
 from typing import cast, get_args
 from zoneinfo import ZoneInfo
@@ -14,7 +13,7 @@ from textual.widgets import Button, Checkbox, Select, Static
 from textual_fspicker import FileSave, Filters
 
 from askue_etl.readings.matritca_readings import BalanceGroupType, prepare_readings
-from askue_etl.reports.matritca_readings import write_readings_reports
+from askue_etl.reports.matritca_readings import ReadingsReports, write_readings_reports
 from widgets.file_picker import FILE_LOCATION, FilePathSelected, FilePicker
 
 
@@ -22,7 +21,7 @@ class MatritcaReadingsPanel(Container):
     readings_path: var[Path | None] = var(None)
     list_1c_path: var[Path | None] = var(None)
     balance_group: var[BalanceGroupType | None] = var(None)
-    readings_reports: var[tuple[BytesIO, BytesIO] | None] = var(None)
+    readings_reports: var[ReadingsReports | None] = var(None)
 
     def compose(self) -> ComposeResult:
         yield Static("Трансформировать экспорт из Sims в формат для 1С, Приложение №9.")
@@ -123,13 +122,8 @@ class MatritcaReadingsPanel(Container):
                 filters=Filters(("ZIP", lambda p: p.suffix.lower() == ".zip")),
             ),
         ):
-            register_buf, supplement_nine_buf = self.readings_reports
-
             await asyncio.to_thread(
-                self._write_zip,
-                save_path.with_suffix(".zip"),
-                register_buf.getvalue(),
-                supplement_nine_buf.getvalue(),
+                self._write_zip, save_path.with_suffix(".zip"), self.readings_reports
             )
 
             self.notify("Файл сохранён.", timeout=10)
@@ -145,7 +139,7 @@ class MatritcaReadingsPanel(Container):
     def _on_process_data_start(self) -> None:
         self.query_one("#process-data-btn", Button).loading = True
 
-    def _on_process_data_done(self, readings_reports: tuple[BytesIO, BytesIO]) -> None:
+    def _on_process_data_done(self, readings_reports: ReadingsReports) -> None:
         self.readings_reports = readings_reports
         self.query_one("#process-data-btn", Button).loading = False
         save_file_btn = self.query_one("#save-file-btn", Button)
@@ -159,17 +153,18 @@ class MatritcaReadingsPanel(Container):
         save_file_btn.disabled = True
         save_file_btn.variant = "default"
 
-    def _write_zip(
-        self,
-        path: Path,
-        register: bytes,
-        supplement: bytes,
-    ) -> None:
+    def _write_zip(self, path: Path, readings_reports: ReadingsReports) -> None:
         askue_date = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%d.%m.%Y")
 
         with (
             open(path, "wb") as f,
             zipfile.ZipFile(f, "w", zipfile.ZIP_DEFLATED) as zf,
         ):
-            zf.writestr(f"АСКУЭ {self.balance_group} {askue_date}.xlsx", register)
-            zf.writestr(f"Приложение №9 {self.balance_group}.xlsx", supplement)
+            zf.writestr(
+                f"АСКУЭ {self.balance_group} {askue_date}.xlsx",
+                readings_reports.register_buf.getvalue(),
+            )
+            zf.writestr(
+                f"Приложение №9 {self.balance_group}.xlsx",
+                readings_reports.supplement_nine_buf.getvalue(),
+            )

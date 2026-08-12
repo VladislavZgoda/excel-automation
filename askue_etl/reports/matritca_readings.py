@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from io import BytesIO
-from typing import cast
+from typing import NamedTuple, cast
 
 import polars as pl
 from polars.selectors import Selector
@@ -12,9 +12,14 @@ from askue_etl.readings.matritca_readings import BalanceGroupType
 ColumnFormats = dict[str | Selector | tuple[str | Selector, ...], Format]
 
 
+class ReadingsReports(NamedTuple):
+    register_buf: BytesIO
+    supplement_nine_buf: BytesIO
+
+
 def write_readings_reports(
     ridings: pl.DataFrame, balance_group: BalanceGroupType
-) -> tuple[BytesIO, BytesIO]:
+) -> ReadingsReports:
     buffer_register = BytesIO()
     buffer_supplement_nine = BytesIO()
 
@@ -135,7 +140,9 @@ def write_readings_reports(
             column_formats=column_formats,
         )
 
-    return buffer_register, buffer_supplement_nine
+    return ReadingsReports(
+        register_buf=buffer_register, supplement_nine_buf=buffer_supplement_nine
+    )
 
 
 @dataclass
