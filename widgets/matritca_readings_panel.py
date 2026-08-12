@@ -72,7 +72,9 @@ class MatritcaReadingsPanel(Container):
         list_1c_picker.disabled = not event.value
 
         if not event.value:
-            self.list_1c_path = None
+            if self.list_1c_path is not None:
+                self.list_1c_path = None
+                self._reset_readings_reports()
             list_1c_picker.reset()
 
     def on_select_changed(self, event: Select.Changed) -> None:
