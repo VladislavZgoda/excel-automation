@@ -1,5 +1,5 @@
 Sidebar {
-    width: 24;
+    width: 28;
     border-right: solid $accent;
 }
 
@@ -42,4 +42,10 @@ Select {
 FilePicker.file-selected {
     margin-bottom: 1;
     margin-left: 1;
+}
+
+#sims-readings-btn,
+#p2-readings-btn,
+#p2-current-readings-btn {
+     width: 45;
 }

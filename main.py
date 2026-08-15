@@ -11,6 +11,7 @@ from textual.widgets import (
     ListView,
 )
 
+from widgets.legal_entities_panel import LegalEntitiesPanel
 from widgets.matritca_readings_panel import MatritcaReadingsPanel
 
 
@@ -29,6 +30,7 @@ class MyApp(App):
             yield Sidebar()
             with ContentSwitcher(initial="panel_matritca_readings"):
                 yield MatritcaReadingsPanel(id="panel_matritca_readings")
+                yield LegalEntitiesPanel(id="panel-legal-entities")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -44,6 +46,7 @@ class MyApp(App):
 class Sidebar(ListView):
     def compose(self) -> ComposeResult:
         yield ListItem(Label("Обработать ПУ Матрица"), id="panel_matritca_readings")
+        yield ListItem(Label("Создать ведомости для ЮР лиц"), id="panel-legal-entities")
 
 
 if __name__ == "__main__":
