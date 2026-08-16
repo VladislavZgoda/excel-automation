@@ -31,12 +31,6 @@ class LegalEntitiesPanel(Container):
             classes="action-btn",
             disabled=True,
         )
-        yield Button(
-            "Сохранить ведомости",
-            id="save-file-btn",
-            classes="action-btn",
-            disabled=True,
-        )
 
     def on_file_path_selected(self, event: FilePathSelected) -> None:
         match event.picker_id:
@@ -49,6 +43,8 @@ class LegalEntitiesPanel(Container):
             case _:
                 return
 
+        self._check_and_enable_process_data_btn()
+
     def on_folder_path_selected(self, event: FolderPathSelected) -> None:
         match event.picker_id:
             case "template-folder":
@@ -57,3 +53,21 @@ class LegalEntitiesPanel(Container):
                 self.reports_folder_path = event.folder_path
             case _:
                 return
+
+        self._check_and_enable_process_data_btn()
+
+    def _check_and_enable_process_data_btn(self) -> None:
+        if self.sims_readings_path is None:
+            return
+        if self.p2_readings_path is None:
+            return
+        if self.p2_current_readings is None:
+            return
+        if self.template_folder_path is None:
+            return
+        if self.reports_folder_path is None:
+            return
+
+        process_data_btn = self.query_one("#process-data-btn", Button)
+        process_data_btn.disabled = False
+        process_data_btn.variant = "primary"
