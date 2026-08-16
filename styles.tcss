@@ -8,6 +8,11 @@ FilePicker {
     margin-left: 1;
 }
 
+FolderPicker {
+    height: auto;
+    margin-left: 1;
+}
+
 ContentSwitcher {
     width: 1fr;
     padding: 1 2;
@@ -46,6 +51,8 @@ FilePicker.file-selected {
 
 #sims-readings-btn,
 #p2-readings-btn,
-#p2-current-readings-btn {
+#p2-current-readings-btn,
+#template-folder-btn,
+#reports-folder-btn {
      width: 45;
 }

@@ -3,6 +3,7 @@ from textual.containers import Container
 from textual.widgets import Button, Static
 
 from widgets.file_picker import FilePicker
+from widgets.folder_picker import FolderPicker
 
 
 class LegalEntitiesPanel(Container):
@@ -13,6 +14,8 @@ class LegalEntitiesPanel(Container):
         yield FilePicker(
             "Выберите файл c текущими показаниями из П2", "p2-current-readings"
         )
+        yield FolderPicker("Выберите папку с шаблонами ведомостей", "template-folder")
+        yield FolderPicker("Выберите папку для сохранения ведомостей", "reports-folder")
         yield Button(
             "Сформировать ведомости",
             id="process-data-btn",
