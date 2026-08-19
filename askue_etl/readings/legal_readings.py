@@ -22,16 +22,14 @@ def prepare_readings(
 ) -> MeterReadings:
     meter_readings: MeterReadings = {}
 
-    _get_matritca_vip_readings(sims_readings_path, meter_readings)
-    _get_p2_readings(p2_readings_path, meter_readings)
-    _get_p2_current_readings(p2_current_readings, meter_readings)
+    meter_readings |= _get_matritca_vip_readings(sims_readings_path)
+    meter_readings |= _get_p2_readings(p2_readings_path)
+    meter_readings |= _get_p2_current_readings(p2_current_readings)
 
     return meter_readings
 
 
-def _get_matritca_vip_readings(
-    readings_path: Path, meter_readings: MeterReadings
-) -> None:
+def _get_matritca_vip_readings(readings_path: Path) -> MeterReadings:
     df = (
         pl.read_excel(readings_path, read_options={"header_row": 1})
         .head(-1)
@@ -48,17 +46,20 @@ def _get_matritca_vip_readings(
         .select(["Серийный №", "Дата", "Активная энергия, импорт"])
     )
 
-    for record in df.iter_rows(named=True):
-        meter_readings[record["Серийный №"]] = MeterData(
+    return {
+        record["Серийный №"]: MeterData(
             date=record["Дата"],
             readings=float(record["Активная энергия, импорт"]),
         )
+        for record in df.iter_rows(named=True)
+    }
 
 
-def _get_p2_readings(readings_path: Path, meter_readings: MeterReadings) -> None:
+def _get_p2_readings(readings_path: Path) -> MeterReadings:
     wb = load_workbook(readings_path)
     ws = wb["Данные"]
 
+    meter_readings: MeterReadings = {}
     readings_date = str(ws["K6"].value)
 
     for row in range(7, ws.max_row + 1):
@@ -74,13 +75,14 @@ def _get_p2_readings(readings_path: Path, meter_readings: MeterReadings) -> None
             readings=readings,
         )
 
+    return meter_readings
 
-def _get_p2_current_readings(
-    readings_path: Path, meter_readings: MeterReadings
-) -> None:
+
+def _get_p2_current_readings(readings_path: Path) -> MeterReadings:
     wb = load_workbook(readings_path)
     ws = wb["Sheet"]
 
+    meter_readings: MeterReadings = {}
     current_date = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%d.%m.%Y")
     serial_number_regex = re.compile(r"\d{6,8}")
 
@@ -101,3 +103,5 @@ def _get_p2_current_readings(
             date=current_date,
             readings=readings,
         )
+
+    return meter_readings
