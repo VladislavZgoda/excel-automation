@@ -1,10 +1,13 @@
 from pathlib import Path
 
+from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.reactive import var
 from textual.widgets import Button, Static
 
+from askue_etl.readings.legal_readings import prepare_readings
+from askue_etl.reports.legal_readings import write_readings_reports
 from widgets.file_picker import FilePathSelected, FilePicker
 from widgets.folder_picker import FolderPathSelected, FolderPicker
 
@@ -56,6 +59,33 @@ class LegalEntitiesPanel(Container):
 
         self._check_and_enable_process_data_btn()
 
+    @on(Button.Pressed, "#process-data-btn")
+    @work(thread=True)
+    def handle_process_data_btn(self) -> None:
+        if self.sims_readings_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+        if self.p2_readings_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+        if self.p2_current_readings is None:
+            raise ValueError("Требуется объект Path, получен None.")
+        if self.template_folder_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+        if self.reports_folder_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+
+        self.app.call_from_thread(self._on_process_data_start)
+
+        meter_readings = prepare_readings(
+            self.sims_readings_path, self.p2_readings_path, self.p2_current_readings
+        )
+
+        write_readings_reports(
+            meter_readings, self.template_folder_path, self.reports_folder_path
+        )
+
+        self.app.call_from_thread(self._on_process_data_done)
+        self.notify("Ведомости созданы.", timeout=10)
+
     def _check_and_enable_process_data_btn(self) -> None:
         if self.sims_readings_path is None:
             return
@@ -71,3 +101,24 @@ class LegalEntitiesPanel(Container):
         process_data_btn = self.query_one("#process-data-btn", Button)
         process_data_btn.disabled = False
         process_data_btn.variant = "primary"
+
+    def _on_process_data_start(self) -> None:
+        self.query_one("#process-data-btn", Button).loading = True
+
+    def _on_process_data_done(self) -> None:
+        self.sims_readings_path = None
+        self.p2_readings_path = None
+        self.p2_current_readings = None
+        self.template_folder_path = None
+        self.reports_folder_path = None
+
+        for picker in self.query(FilePicker):
+            picker.reset()
+
+        for picker in self.query(FolderPicker):
+            picker.reset()
+
+        process_data_btn = self.query_one("#process-data-btn", Button)
+        process_data_btn.loading = False
+        process_data_btn.disabled = True
+        process_data_btn.variant = "default"
