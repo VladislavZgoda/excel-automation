@@ -12,6 +12,7 @@ from textual.reactive import var
 from textual.widgets import Button, Checkbox, Select, Static
 from textual_fspicker import FileSave, Filters
 
+from askue_etl.common.validation import require_not_none
 from askue_etl.readings.matritca_readings import BalanceGroupType, prepare_readings
 from askue_etl.reports.matritca_readings import ReadingsReports, write_readings_reports
 from widgets.file_picker import FILE_LOCATION, FilePathSelected, FilePicker
@@ -91,23 +92,21 @@ class MatritcaReadingsPanel(Container):
     @on(Button.Pressed, "#process-data-btn")
     @work(thread=True)
     def handle_process_data_btn(self) -> None:
-        balance_group = self.balance_group
+        readings_path = require_not_none(self.readings_path, "readings_path")
+        balance_group = require_not_none(self.balance_group, "balance_group")
+        allowed_groups = get_args(BalanceGroupType)
 
-        if self.readings_path is None:
-            raise ValueError("Требуется объект Path, получен None.")
-        if balance_group is None:
-            raise TypeError(
-                f"Требуется тип {BalanceGroupType.__str__()}, получен None."
-            )
-        if balance_group not in get_args(BalanceGroupType):
+        if balance_group not in allowed_groups:
             raise ValueError(
-                f"Требуется значение 'Быт' или 'Юр', получен {balance_group}."
+                f"Требуется одно из {allowed_groups!r}, получено {balance_group!r} для balance_group."
             )
 
         self.app.call_from_thread(self._on_process_data_start)
+
         prepared_readings = prepare_readings(
-            self.readings_path, balance_group, self.list_1c_path
+            readings_path, balance_group, self.list_1c_path
         )
+
         readings_reports = write_readings_reports(prepared_readings, balance_group)
 
         self.app.call_from_thread(self._on_process_data_done, readings_reports)

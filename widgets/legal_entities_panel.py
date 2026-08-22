@@ -6,6 +6,7 @@ from textual.containers import Container
 from textual.reactive import var
 from textual.widgets import Button, Static
 
+from askue_etl.common.validation import require_not_none
 from askue_etl.readings.legal_readings import prepare_readings
 from askue_etl.reports.legal_readings import write_readings_reports
 from widgets.file_picker import FilePathSelected, FilePicker
@@ -62,25 +63,32 @@ class LegalEntitiesPanel(Container):
     @on(Button.Pressed, "#process-data-btn")
     @work(thread=True)
     def handle_process_data_btn(self) -> None:
-        if self.sims_readings_path is None:
-            raise ValueError("Требуется объект Path, получен None.")
-        if self.p2_readings_path is None:
-            raise ValueError("Требуется объект Path, получен None.")
-        if self.p2_current_readings is None:
-            raise ValueError("Требуется объект Path, получен None.")
-        if self.template_folder_path is None:
-            raise ValueError("Требуется объект Path, получен None.")
-        if self.reports_folder_path is None:
-            raise ValueError("Требуется объект Path, получен None.")
+        p2_readings_path = require_not_none(self.p2_readings_path, "p2_readings_path")
+
+        sims_readings_path = require_not_none(
+            self.sims_readings_path, "sims_readings_path"
+        )
+
+        p2_current_readings = require_not_none(
+            self.p2_current_readings, "p2_current_readings"
+        )
+
+        template_folder_path = require_not_none(
+            self.template_folder_path, "template_folder_path"
+        )
+
+        reports_folder_path = require_not_none(
+            self.reports_folder_path, "reports_folder_path"
+        )
 
         self.app.call_from_thread(self._on_process_data_start)
 
         meter_readings = prepare_readings(
-            self.sims_readings_path, self.p2_readings_path, self.p2_current_readings
+            sims_readings_path, p2_readings_path, p2_current_readings
         )
 
         write_readings_reports(
-            meter_readings, self.template_folder_path, self.reports_folder_path
+            meter_readings, template_folder_path, reports_folder_path
         )
 
         self.app.call_from_thread(self._on_process_data_done)
