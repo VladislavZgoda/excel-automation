@@ -87,15 +87,18 @@ class LegalEntitiesPanel(Container):
         self.notify("Ведомости созданы.", timeout=10)
 
     def _check_and_enable_process_data_btn(self) -> None:
-        if self.sims_readings_path is None:
-            return
-        if self.p2_readings_path is None:
-            return
-        if self.p2_current_readings is None:
-            return
-        if self.template_folder_path is None:
-            return
-        if self.reports_folder_path is None:
+        all_paths_selected = all(
+            path is not None
+            for path in (
+                self.sims_readings_path,
+                self.p2_readings_path,
+                self.p2_current_readings,
+                self.template_folder_path,
+                self.reports_folder_path,
+            )
+        )
+
+        if not all_paths_selected:
             return
 
         process_data_btn = self.query_one("#process-data-btn", Button)
