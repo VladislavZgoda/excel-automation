@@ -45,14 +45,12 @@ class MatritcaReadingsPanel(Container):
             "Обработать данные",
             id="process-data-btn",
             classes="action-btn",
-            variant="default",
             disabled=True,
         )
         yield Button(
             "Сохранить отчёты",
             id="save-file-btn",
             classes="action-btn",
-            variant="default",
             disabled=True,
         )
 

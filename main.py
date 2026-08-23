@@ -28,8 +28,8 @@ class MyApp(App):
         yield Header()
         with Horizontal():
             yield Sidebar()
-            with ContentSwitcher(initial="panel_matritca_readings"):
-                yield MatritcaReadingsPanel(id="panel_matritca_readings")
+            with ContentSwitcher(initial="panel-matritca-readings"):
+                yield MatritcaReadingsPanel(id="panel-matritca-readings")
                 yield LegalEntitiesPanel(id="panel-legal-entities")
         yield Footer()
 
@@ -45,7 +45,7 @@ class MyApp(App):
 
 class Sidebar(ListView):
     def compose(self) -> ComposeResult:
-        yield ListItem(Label("Обработать ПУ Матрица"), id="panel_matritca_readings")
+        yield ListItem(Label("Обработать ПУ Матрица"), id="panel-matritca-readings")
         yield ListItem(Label("Создать ведомости для ЮР лиц"), id="panel-legal-entities")
 
 
