@@ -13,6 +13,7 @@ from textual.widgets import (
 
 from widgets.legal_entities_panel import LegalEntitiesPanel
 from widgets.matritca_readings_panel import MatritcaReadingsPanel
+from widgets.microgeneration_panel import MicrogenerationPanel
 
 
 class MyApp(App):
@@ -31,6 +32,7 @@ class MyApp(App):
             with ContentSwitcher(initial="panel-matritca-readings"):
                 yield MatritcaReadingsPanel(id="panel-matritca-readings")
                 yield LegalEntitiesPanel(id="panel-legal-entities")
+                yield MicrogenerationPanel(id="panel-microgeneration")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -44,7 +46,11 @@ class MyApp(App):
 
 
 class Sidebar(ListView):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, initial_index=1, **kwargs)
+
     def compose(self) -> ComposeResult:
+        yield ListItem(Label("Микрогенерация"), id="panel-microgeneration")
         yield ListItem(Label("Обработать ПУ Матрица"), id="panel-matritca-readings")
         yield ListItem(Label("Создать ведомости для ЮР лиц"), id="panel-legal-entities")
 

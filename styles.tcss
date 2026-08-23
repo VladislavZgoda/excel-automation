@@ -56,3 +56,8 @@ FilePicker.file-selected {
 #reports-folder-btn {
      width: 45;
 }
+
+#readings-btn,
+#template-btn {
+    width: 35;
+}
