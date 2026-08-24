@@ -7,6 +7,7 @@ from textual.reactive import var
 from textual.widgets import Button, Static
 
 from askue_etl.common.validation import require_not_none
+from askue_etl.readings.microgeneration import prepare_readings
 from widgets.file_picker import FilePathSelected, FilePicker
 
 
@@ -46,6 +47,8 @@ class MicrogenerationPanel(Container):
     def handle_process_data_btn(self) -> None:
         readings_path = require_not_none(self.readings_path, "readings_path")
         template_path = require_not_none(self.template_path, "template_path")
+
+        meter_readings = prepare_readings(readings_path, template_path)
 
     @on(Button.Pressed, "#save-file-btn")
     def handle_save_btn(self) -> None:
