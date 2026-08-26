@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from openpyxl import Workbook
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container
@@ -8,12 +9,15 @@ from textual.widgets import Button, Static
 
 from askue_etl.common.validation import require_not_none
 from askue_etl.readings.microgeneration import prepare_readings
-from widgets.file_picker import FilePathSelected, FilePicker
+from askue_etl.reports.microgeneration import write_readings_report
+
+from .file_picker import FilePathSelected, FilePicker
 
 
 class MicrogenerationPanel(Container):
     readings_path: var[Path | None] = var(None)
     template_path: var[Path | None] = var(None)
+    workbook: var[Workbook | None] = var(None)
 
     def compose(self) -> ComposeResult:
         yield Static("Заполнить шаблон данными по микрогенерации.")
@@ -49,6 +53,7 @@ class MicrogenerationPanel(Container):
         template_path = require_not_none(self.template_path, "template_path")
 
         meter_readings = prepare_readings(readings_path, template_path)
+        self.workbook = write_readings_report(template_path, meter_readings)
 
     @on(Button.Pressed, "#save-file-btn")
     def handle_save_btn(self) -> None:
