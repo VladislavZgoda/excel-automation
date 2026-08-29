@@ -74,6 +74,7 @@ def _to_float(value: object, row: int, column: str) -> float | None:
         return None
     if isinstance(value, (int, float)):
         return float(value)
+
     raise TypeError(
         f"Ожидалось числовое значение в ячейке {column}{row}, "
         f"получено {value!r} ({type(value).__name__})"
@@ -83,6 +84,7 @@ def _to_float(value: object, row: int, column: str) -> float | None:
 def _to_datetime(value: object, row: int, column: str) -> datetime:
     if isinstance(value, datetime):
         return value
+
     raise TypeError(
         f"Ожидалась дата (datetime) в ячейке {column}{row}, "
         f"получено {value!r} ({type(value).__name__})"

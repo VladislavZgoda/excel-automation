@@ -3,14 +3,15 @@ Sidebar {
     border-right: solid $accent;
 }
 
-FilePicker {
+FilePicker,
+FolderPicker {
     height: auto;
     margin-left: 1;
 }
 
-FolderPicker {
-    height: auto;
+FilePicker.file-selected {
     margin-left: 1;
+    margin-bottom: 1;
 }
 
 ContentSwitcher {
@@ -28,25 +29,20 @@ Button {
     margin-bottom: 1;
 }
 
-Select {
-    margin-left: 0;
-    width: 31;
-}
-
-#select-btn {
-    margin-top: 1;
-    margin-bottom: 1;
-}
-
 .action-btn {
     width: 29;
     margin-top: 1;
     margin-left: 1;
 }
 
-FilePicker.file-selected {
+Select {
+    width: 31;
+    margin-left: 0;
+}
+
+#select-btn {
+    margin-top: 1;
     margin-bottom: 1;
-    margin-left: 1;
 }
 
 #sims-readings-btn,
