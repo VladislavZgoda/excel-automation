@@ -46,6 +46,7 @@ class MicrogenerationPanel(Container):
             case _:
                 return
 
+        self._reset_readings_reports()
         self._check_and_enable_process_data_btn()
 
     @on(Button.Pressed, "#process-data-btn")
@@ -83,6 +84,13 @@ class MicrogenerationPanel(Container):
         process_data_btn = self.query_one("#process-data-btn", Button)
         process_data_btn.disabled = False
         process_data_btn.variant = "primary"
+
+    def _reset_readings_reports(self) -> None:
+        self.workbook = None
+
+        save_file_btn = self.query_one("#save-file-btn", Button)
+        save_file_btn.disabled = True
+        save_file_btn.variant = "default"
 
     def _reset_state(self) -> None:
         self.readings_path = None
