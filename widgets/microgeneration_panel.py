@@ -50,20 +50,18 @@ class MicrogenerationPanel(Container):
         self._check_and_enable_process_data_btn()
 
     @on(Button.Pressed, "#process-data-btn")
+    @work(thread=True)
     def handle_process_data_btn(self) -> None:
         readings_path = require_not_none(self.readings_path, "readings_path")
         template_path = require_not_none(self.template_path, "template_path")
 
-        self.query_one("#process-data-btn", Button).loading = True
+        self.app.call_from_thread(self._on_process_data_start)
 
         meter_readings = prepare_readings(readings_path, template_path)
-        self.workbook = write_readings_report(template_path, meter_readings)
+        workbook = self.workbook = write_readings_report(template_path, meter_readings)
 
+        self.app.call_from_thread(self._on_process_data_done, workbook)
         self.notify("Ведомость сформирована.")
-        save_file_btn = self.query_one("#save-file-btn", Button)
-        save_file_btn.disabled = False
-        save_file_btn.variant = "success"
-        self.query_one("#process-data-btn", Button).loading = False
 
     @on(Button.Pressed, "#save-file-btn")
     @work
@@ -79,6 +77,17 @@ class MicrogenerationPanel(Container):
             wb.save(save_path.with_suffix(".xlsx"))
             self._reset_state()
             self.notify("Файл сохранён.")
+
+    def _on_process_data_start(self) -> None:
+        self.query_one("#process-data-btn", Button).loading = True
+
+    def _on_process_data_done(self, workbook: Workbook) -> None:
+        self.workbook = workbook
+
+        save_file_btn = self.query_one("#save-file-btn", Button)
+        save_file_btn.disabled = False
+        save_file_btn.variant = "success"
+        self.query_one("#process-data-btn", Button).loading = False
 
     def _check_and_enable_process_data_btn(self) -> None:
         if self.readings_path is None or self.template_path is None:
