@@ -54,6 +54,8 @@ class MicrogenerationPanel(Container):
         readings_path = require_not_none(self.readings_path, "readings_path")
         template_path = require_not_none(self.template_path, "template_path")
 
+        self.query_one("#process-data-btn", Button).loading = True
+
         meter_readings = prepare_readings(readings_path, template_path)
         self.workbook = write_readings_report(template_path, meter_readings)
 
@@ -61,6 +63,7 @@ class MicrogenerationPanel(Container):
         save_file_btn = self.query_one("#save-file-btn", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
+        self.query_one("#process-data-btn", Button).loading = False
 
     @on(Button.Pressed, "#save-file-btn")
     @work
