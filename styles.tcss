@@ -57,3 +57,9 @@ Select {
 #template-btn {
     width: 35;
 }
+
+#report-btn,
+#process-data-btn,
+#new-readings-btn {
+    width: 42;
+}
