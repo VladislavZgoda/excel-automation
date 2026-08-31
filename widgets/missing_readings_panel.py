@@ -7,6 +7,7 @@ from textual.reactive import var
 from textual.widgets import Button, Static
 
 from askue_etl.common.validation import require_not_none
+from askue_etl.readings.missing_readings import prepare_readings
 
 from .file_picker import FilePathSelected, FilePicker
 
@@ -41,6 +42,8 @@ class MissingReadingsPanel(Container):
     def handle_process_data_btn(self) -> None:
         readings_path = require_not_none(self.readings_path, "readings_path")
         report_path = require_not_none(self.report_path, "report_path")
+
+        meter_readings = prepare_readings(readings_path, report_path)
 
     def _check_and_enable_process_data_btn(self) -> None:
         if self.readings_path is None or self.report_path is None:
