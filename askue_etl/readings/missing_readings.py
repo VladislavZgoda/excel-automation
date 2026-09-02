@@ -45,19 +45,18 @@ def _get_meters_without_readings(report_path: Path) -> MissingReadingsMeters:
 
 
 def _get_readings(readings_path: Path, meters: MissingReadingsMeters) -> MeterReadings:
-    wb = load_workbook(readings_path)
+    wb = load_workbook(readings_path, read_only=True)
     ws = cast(Worksheet, wb.active)
 
     meter_readings: MeterReadings = []
 
-    for row in range(7, ws.max_row + 1):
-        str_row_number = str(row)
-        serial_number = str(ws["E" + str_row_number].value)
+    for row in ws.iter_rows(min_row=7, min_col=5, max_col=11):
+        serial_number = str(row[0].value).zfill(8)  # E
 
         if serial_number not in meters:
             continue
 
-        readings = ws["K" + str_row_number].value
+        readings = row[6].value  # K
 
         if not isinstance(readings, (int, float)):
             continue
@@ -70,4 +69,5 @@ def _get_readings(readings_path: Path, meters: MissingReadingsMeters) -> MeterRe
             )
         )
 
+    wb.close()
     return meter_readings
