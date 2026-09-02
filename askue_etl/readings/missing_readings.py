@@ -14,6 +14,7 @@ type MissingReadingsMeters = dict[str, str]
 class MeterData:
     serial_number: str
     readings: int | float
+    readings_date: str
     row_number: str
 
 
@@ -49,6 +50,7 @@ def _get_readings(readings_path: Path, meters: MissingReadingsMeters) -> MeterRe
     ws = cast(Worksheet, wb.active)
 
     meter_readings: MeterReadings = []
+    readings_date = cast(str, ws["K6"].value)
 
     for row in ws.iter_rows(min_row=7, min_col=5, max_col=11):
         serial_number = str(row[0].value).zfill(8)  # E
@@ -65,6 +67,7 @@ def _get_readings(readings_path: Path, meters: MissingReadingsMeters) -> MeterRe
             MeterData(
                 serial_number=serial_number,
                 readings=readings,
+                readings_date=readings_date,
                 row_number=meters[serial_number],
             )
         )
