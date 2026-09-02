@@ -58,7 +58,7 @@ class MicrogenerationPanel(Container):
         self.app.call_from_thread(self._on_process_data_start)
 
         meter_readings = prepare_readings(readings_path, template_path)
-        workbook = self.workbook = write_readings_report(template_path, meter_readings)
+        workbook = write_readings_report(template_path, meter_readings)
 
         self.app.call_from_thread(self._on_process_data_done, workbook)
         self.notify("Ведомость сформирована.")
